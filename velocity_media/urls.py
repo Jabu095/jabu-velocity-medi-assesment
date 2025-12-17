@@ -7,7 +7,7 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
-from events.frontend_views import login_view, register_view, dashboard_view, event_detail_view
+from events.frontend_views import login_view, register_view, dashboard_view, event_detail_view, chat_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -20,6 +20,7 @@ urlpatterns = [
     path('register/', register_view, name='register'),
     path('dashboard/', dashboard_view, name='dashboard'),
     path('events/<int:event_id>/', event_detail_view, name='event-detail'),
+    path('chat/', chat_view, name='chat'),
 ]
 
 # Debug toolbar URLs (only in development)

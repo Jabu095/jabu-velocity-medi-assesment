@@ -18,6 +18,7 @@
                 {% if user.is_authenticated %}
                     <span class="user-info">Welcome, <strong id="username-display"></strong></span>
                     <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+                    <a href="{% url 'chat' %}" class="nav-link">💬 AI Chat</a>
                     <button id="logout-btn" class="btn btn-outline">Logout</button>
                 {% else %}
                     <a href="{% url 'login' %}" class="nav-link">Login</a>
