@@ -14,7 +14,12 @@
             <div class="nav-brand">
                 <a href="{% url 'home' %}">Velocity Media</a>
             </div>
-            <div class="nav-links">
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="nav-links">
                 {% if user.is_authenticated %}
                     <span class="user-info">Welcome, <strong id="username-display"></strong></span>
                     <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
@@ -27,6 +32,47 @@
             </div>
         </div>
     </nav>
+    
+    <!-- Mobile Drawer -->
+    <div class="mobile-drawer" id="mobile-drawer">
+        <div class="drawer-overlay" id="drawer-overlay"></div>
+        <div class="drawer-content">
+            <div class="drawer-header">
+                <h3>Menu</h3>
+                <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="drawer-body">
+                {% if user.is_authenticated %}
+                    <div class="drawer-user-info">
+                        <p>Welcome, <strong id="drawer-username-display"></strong></p>
+                    </div>
+                    <a href="{% url 'dashboard' %}" class="drawer-link">
+                        <span class="drawer-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{% url 'chat' %}" class="drawer-link">
+                        <span class="drawer-icon">💬</span>
+                        <span>AI Chat</span>
+                    </a>
+                    <button id="drawer-logout-btn" class="drawer-link drawer-link-button">
+                        <span class="drawer-icon">🚪</span>
+                        <span>Logout</span>
+                    </button>
+                {% else %}
+                    <a href="{% url 'login' %}" class="drawer-link">
+                        <span class="drawer-icon">🔐</span>
+                        <span>Login</span>
+                    </a>
+                    <a href="{% url 'register' %}" class="drawer-link drawer-link-primary">
+                        <span class="drawer-icon">✨</span>
+                        <span>Register</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
     <main class="main-content">
         {% if messages %}
@@ -51,6 +97,7 @@
 
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/api.js' %}"></script>
+    <script src="{% static 'js/mobile-menu.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
