@@ -1,0 +1,66 @@
+# Django Framework
+Django>=5.0,<6.0
+
+# Django REST Framework
+djangorestframework>=3.14.0
+djangorestframework-simplejwt>=5.3.0
+
+# Google API Client
+google-api-python-client>=2.100.0
+
+# HTTP Client
+requests>=2.31.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Date parsing
+python-dateutil>=2.8.2
+
+# URL validation
+validators>=0.22.0
+
+# ============================================================================
+# Popular Django Packages (Most Loved & Commonly Used)
+# ============================================================================
+
+# django-cors-headers - Essential for frontend/backend communication
+# Why loved: Solves CORS issues effortlessly, simple configuration
+django-cors-headers>=4.3.0
+
+# django-filter - Powerful filtering for DRF
+# Why loved: Declarative filtering, works seamlessly with DRF, saves tons of code
+django-filter>=23.3
+
+# django-extensions - Swiss Army knife for Django development
+# Why loved: shell_plus, runserver_plus, graph_models, show_urls - productivity boosters
+django-extensions>=3.2.3
+
+# django-debug-toolbar - Best debugging tool for Django
+# Why loved: SQL queries, templates, signals, performance profiling - all in one
+django-debug-toolbar>=4.2.0
+
+# django-ratelimit - Simple rate limiting
+# Why loved: Easy to use, decorator-based, protects APIs from abuse
+django-ratelimit>=4.1.0
+
+# django-health-check - Health monitoring endpoints
+# Why loved: Standard health check endpoints, database/redis/celery checks
+django-health-check>=3.17.0
+
+# pytest-django - Modern testing framework
+# Why loved: Better than unittest, fixtures, parametrize, cleaner syntax
+pytest-django>=4.7.0
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Code Quality Tools
+# Why loved: black = zero-config formatting, flake8 = catches bugs early
+black>=23.11.0
+flake8>=6.1.0
+isort>=5.12.0
+
+# django-environ - Better environment variable management
+# Why loved: Type casting, validation, cleaner than python-dotenv
+django-environ>=0.11.2
+
