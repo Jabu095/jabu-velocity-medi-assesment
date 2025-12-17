@@ -24,8 +24,13 @@ COPY . .
 # Create static directory if it doesn't exist (prevents STATICFILES_DIRS warning)
 RUN mkdir -p static staticfiles
 
-# Collect static files
-RUN python manage.py collectstatic --noinput || true
+# Collect static files (must run after copying project files)
+# Set DJANGO_SETTINGS_MODULE if not set
+ENV DJANGO_SETTINGS_MODULE=velocity_media.settings
+# Set DEBUG=False for production static file collection
+ENV DEBUG=False
+# Collect static files - this must succeed
+RUN python manage.py collectstatic --noinput
 
 # Copy and make start script executable
 COPY start.sh /app/start.sh

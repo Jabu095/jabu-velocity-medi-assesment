@@ -124,14 +124,26 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 # Only add to STATICFILES_DIRS if directory exists (prevents warnings in production)
 static_dir = BASE_DIR / 'static'
 STATICFILES_DIRS = [static_dir] if static_dir.exists() else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # WhiteNoise for efficient static file serving in production
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Why loved: Serves static files efficiently from Django, handles compression and caching
+# Using CompressedStaticFilesStorage (without manifest) for simpler deployment
+# Manifest storage requires proper manifest.json generation which can be tricky in Docker
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+# WhiteNoise configuration
+WHITENOISE_USE_FINDERS = True  # Allow WhiteNoise to find static files during development
+WHITENOISE_AUTOREFRESH = DEBUG  # Auto-refresh in development
+# WhiteNoise will automatically use STATIC_ROOT, no need to set WHITENOISE_ROOT
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
