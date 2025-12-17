@@ -3,6 +3,9 @@ Custom middleware for Railway deployment.
 Validates Railway domains dynamically since Django doesn't support wildcards in ALLOWED_HOSTS.
 """
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class RailwayHostMiddleware:
@@ -17,7 +20,7 @@ class RailwayHostMiddleware:
 
     def __call__(self, request):
         # Check if we're on Railway (Railway sets PORT environment variable)
-        if os.getenv('PORT'):
+        if os.getenv('PORT') or os.getenv('RAILWAY_PUBLIC_DOMAIN'):
             # Check if it's a Railway domain
             host = request.get_host().split(':')[0]  # Remove port if present
             railway_domains = ['.railway.app', '.up.railway.app']
@@ -29,6 +32,7 @@ class RailwayHostMiddleware:
                 from django.conf import settings
                 if host not in settings.ALLOWED_HOSTS:
                     settings.ALLOWED_HOSTS.append(host)
+                    logger.info(f"Added Railway host to ALLOWED_HOSTS: {host}")
         
         response = self.get_response(request)
         return response

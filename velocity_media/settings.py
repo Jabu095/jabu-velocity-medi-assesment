@@ -36,6 +36,9 @@ if os.getenv('RAILWAY_SERVICE_URL'):
     if parsed.hostname:
         ALLOWED_HOSTS.append(parsed.hostname)
 
+# Explicitly add known Railway production domain
+ALLOWED_HOSTS.append('jabu-velocity-medi-assesment-production.up.railway.app')
+
 if not DEBUG:
     pass
 
@@ -137,14 +140,16 @@ STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
 }
 
 # WhiteNoise configuration
-# In production, disable finders and use STATIC_ROOT only
+# In production, WhiteNoise serves from STATIC_ROOT (staticfiles directory)
 WHITENOISE_USE_FINDERS = DEBUG  # Only use finders in development
 WHITENOISE_AUTOREFRESH = DEBUG  # Auto-refresh in development
-# WhiteNoise automatically uses STATIC_ROOT in production
-WHITENOISE_ROOT = str(STATIC_ROOT)  # Explicitly set for clarity
+# Don't set WHITENOISE_ROOT - let it use STATIC_ROOT automatically
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -225,6 +230,24 @@ CORS_ALLOW_CREDENTIALS = True
 # In development, allow all origins (remove in production!)
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
+
+# CSRF Trusted Origins - Required for Railway deployment
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+# Add Railway domains to CSRF trusted origins
+if os.getenv('RAILWAY_PUBLIC_DOMAIN'):
+    CSRF_TRUSTED_ORIGINS.append(f"https://{os.getenv('RAILWAY_PUBLIC_DOMAIN')}")
+if os.getenv('RAILWAY_SERVICE_URL'):
+    CSRF_TRUSTED_ORIGINS.append(os.getenv('RAILWAY_SERVICE_URL'))
+# Also allow the production URL pattern
+CSRF_TRUSTED_ORIGINS.append("https://jabu-velocity-medi-assesment-production.up.railway.app")
+
+# Add Railway domains to CORS allowed origins in production
+if not DEBUG:
+    CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS.copy()
 
 # Debug Toolbar Configuration
 # Why loved: Shows SQL queries, templates, signals, performance metrics

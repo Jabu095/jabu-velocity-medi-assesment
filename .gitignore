@@ -34,9 +34,9 @@ db.sqlite3-journal
 *.pot
 *.pyc
 
-# Static files
+# Static files - only ignore collected staticfiles, not source static
 staticfiles/
-static/
+# Note: DO NOT ignore static/ - it contains source CSS/JS files needed for collectstatic
 
 # Media files
 media/

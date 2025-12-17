@@ -18,19 +18,34 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project
+# Copy project files (including static directory with CSS/JS)
 COPY . .
 
-# Create static directory if it doesn't exist (prevents STATICFILES_DIRS warning)
-RUN mkdir -p static staticfiles
+# Ensure staticfiles output directory exists
+RUN mkdir -p staticfiles
+
+# Verify source static files exist
+RUN echo "=== Source static files ===" && \
+    ls -la /app/static/ && \
+    ls -la /app/static/css/ && \
+    ls -la /app/static/js/
 
 # Collect static files (must run after copying project files)
-# Set DJANGO_SETTINGS_MODULE if not set
+# Set environment variables for proper static file collection
 ENV DJANGO_SETTINGS_MODULE=velocity_media.settings
-# Set DEBUG=False for production static file collection
 ENV DEBUG=False
-# Collect static files - this must succeed
-RUN python manage.py collectstatic --noinput
+ENV SECRET_KEY=build-time-key-not-used-in-production
+
+# Collect static files - verify it succeeds and shows output
+RUN python manage.py collectstatic --noinput --verbosity 2
+
+# Verify static files were collected
+RUN echo "=== Collected staticfiles ===" && \
+    ls -la /app/staticfiles/ && \
+    echo "=== CSS files ===" && \
+    ls -la /app/staticfiles/css/ && \
+    echo "=== JS files ===" && \
+    ls -la /app/staticfiles/js/
 
 # Copy and make start script executable
 COPY start.sh /app/start.sh
