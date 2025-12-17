@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Event Details - Velocity Media{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div id="event-detail" class="event-detail">
+        <div id="loading" class="loading">Loading event details...</div>
+        <div id="event-content" style="display: none;">
+            <!-- Event details will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication
+    if (!isAuthenticated()) {
+        window.location.href = '/login/';
+        return;
+    }
+    
+    // Display username
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    document.getElementById('username-display').textContent = user.username || 'User';
+    
+    // Load event details
+    loadEventDetail({{ event_id }});
+});
+
+async function loadEventDetail(eventId) {
+    const loading = document.getElementById('loading');
+    const content = document.getElementById('event-content');
+    
+    try {
+        const event = await apiCall(`/api/events/${eventId}/`);
+        
+        content.innerHTML = `
+            <div class="event-detail-header">
+                <a href="/dashboard/" class="btn btn-outline">← Back to Dashboard</a>
+                <h1>${escapeHtml(event.title)}</h1>
+                <span class="event-category-badge">${escapeHtml(event.category || 'General')}</span>
+            </div>
+            
+            <div class="event-detail-body">
+                <div class="detail-section">
+                    <h3>Event Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <strong>Venue:</strong>
+                            <span>${escapeHtml(event.venue_name || 'N/A')}</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>City:</strong>
+                            <span>${escapeHtml(event.city)}</span>
+                        </div>
+                        ${event.start_date ? `
+                        <div class="detail-item">
+                            <strong>Date:</strong>
+                            <span>${formatDate(event.start_date)}</span>
+                        </div>
+                        ` : ''}
+                        ${event.address ? `
+                        <div class="detail-item">
+                            <strong>Address:</strong>
+                            <span>${escapeHtml(event.address)}</span>
+                        </div>
+                        ` : ''}
+                        ${event.latitude && event.longitude ? `
+                        <div class="detail-item">
+                            <strong>Location:</strong>
+                            <span>${event.latitude.toFixed(4)}, ${event.longitude.toFixed(4)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                ${event.description ? `
+                <div class="detail-section">
+                    <h3>Description</h3>
+                    <p>${escapeHtml(event.description)}</p>
+                </div>
+                ` : ''}
+                
+                ${event.event_url ? `
+                <div class="detail-section">
+                    <a href="${event.event_url}" target="_blank" class="btn btn-primary">Visit Event Website</a>
+                </div>
+                ` : ''}
+                
+                <div class="detail-section">
+                    <h3>Source Information</h3>
+                    <p><strong>Source:</strong> ${escapeHtml(event.source)}</p>
+                    <p><strong>Added:</strong> ${formatDate(event.created_at)}</p>
+                </div>
+            </div>
+        `;
+        
+        loading.style.display = 'none';
+        content.style.display = 'block';
+    } catch (error) {
+        loading.innerHTML = '<p class="error">Failed to load event details. Please try again.</p>';
+    }
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-ZA', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}
+
