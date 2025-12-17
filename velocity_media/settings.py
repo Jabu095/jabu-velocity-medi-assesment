@@ -133,7 +133,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # WhiteNoise for efficient static file serving in production
 # Why loved: Serves static files efficiently from Django, handles compression and caching
 # Using CompressedStaticFilesStorage (without manifest) for simpler deployment
-# Manifest storage requires proper manifest.json generation which can be tricky in Docker
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
@@ -141,9 +140,11 @@ STORAGES = {
 }
 
 # WhiteNoise configuration
-WHITENOISE_USE_FINDERS = True  # Allow WhiteNoise to find static files during development
+# In production, disable finders and use STATIC_ROOT only
+WHITENOISE_USE_FINDERS = DEBUG  # Only use finders in development
 WHITENOISE_AUTOREFRESH = DEBUG  # Auto-refresh in development
-# WhiteNoise will automatically use STATIC_ROOT, no need to set WHITENOISE_ROOT
+# WhiteNoise automatically uses STATIC_ROOT in production
+WHITENOISE_ROOT = str(STATIC_ROOT)  # Explicitly set for clarity
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -7,6 +7,7 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from django.conf.urls.static import static
 from events.frontend_views import login_view, register_view, dashboard_view, event_detail_view, chat_view
 
 urlpatterns = [
@@ -22,6 +23,10 @@ urlpatterns = [
     path('events/<int:event_id>/', event_detail_view, name='event-detail'),
     path('chat/', chat_view, name='chat'),
 ]
+
+# Serve static files in development (WhiteNoise handles production)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Debug toolbar URLs (only in development)
 if settings.DEBUG:
