@@ -60,7 +60,8 @@ MIDDLEWARE = [
 
 # Add debug toolbar middleware only in development
 if DEBUG:
-    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
+    # Place debug toolbar middleware early but after security middleware
+    MIDDLEWARE.insert(1, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
 ROOT_URLCONF = 'velocity_media.urls'
 
@@ -198,7 +199,12 @@ if DEBUG:
     ]
     
     DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
+        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG and not request.path.startswith('/api/'),
+        'DISABLE_PANELS': {
+            'debug_toolbar.panels.profiling.ProfilingPanel',  # Disable profiling to prevent recursion errors
+        },
+        'SHOW_TEMPLATE_CONTEXT': True,
+        'RENDER_PANELS': True,
     }
 
 # Health Check Configuration
