@@ -27,10 +27,13 @@ RUN mkdir -p static staticfiles
 # Collect static files
 RUN python manage.py collectstatic --noinput || true
 
+# Copy and make start script executable
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Expose port (Railway sets PORT dynamically)
 EXPOSE 8000
 
-# Run gunicorn (use shell form to access PORT env var)
-# Railway will set PORT environment variable
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120 --access-logfile - --error-logfile - velocity_media.wsgi:application"]
+# Use start script to handle PORT variable properly
+CMD ["/app/start.sh"]
 

@@ -1,2 +1,2 @@
-web: gunicorn --bind 0.0.0.0:$PORT --workers 3 --timeout 120 --access-logfile - --error-logfile - velocity_media.wsgi:application
+web: sh -c 'gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120 --access-logfile - --error-logfile - velocity_media.wsgi:application'
 release: python manage.py migrate --noinput && python manage.py collectstatic --noinput || true
