@@ -16,18 +16,17 @@ echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
 # Create superuser if DJANGO_SUPERUSER_USERNAME is set and user doesn't exist
-if [ -n "$DJANGO_SUPERUSER_USERNAME" ]; then
-    echo "Checking for superuser..."
-    python manage.py shell -c "
+# Default admin user for demo purposes
+echo "Checking for superuser..."
+python manage.py shell -c "
 from django.contrib.auth import get_user_model
 User = get_user_model()
-if not User.objects.filter(username='$DJANGO_SUPERUSER_USERNAME').exists():
-    User.objects.create_superuser('$DJANGO_SUPERUSER_USERNAME', '$DJANGO_SUPERUSER_EMAIL', '$DJANGO_SUPERUSER_PASSWORD')
-    print('Superuser created')
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser('admin', 'admin@example.com', 'test1234')
+    print('Superuser created: admin')
 else:
     print('Superuser already exists')
 "
-fi
 
 echo "Starting Gunicorn on port ${PORT}..."
 
