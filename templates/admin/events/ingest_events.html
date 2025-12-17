@@ -1,0 +1,181 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Ingest Events - {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:events_event_changelist' %}">Events</a>
+    &rsaquo; Ingest Events
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <h1>Ingest Events from Google Places API</h1>
+    
+    <div class="module">
+        <p>
+            This tool fetches event venues from Google Places API and stores them in the database.
+            You can choose to fetch from a specific city or all cities.
+        </p>
+        
+        <form method="post" id="ingest-form">
+            {% csrf_token %}
+            
+            <fieldset class="module aligned">
+                <h2>Ingestion Settings</h2>
+                
+                <div class="form-row">
+                    <div>
+                        <label for="id_city">City:</label>
+                        <select name="city" id="id_city" style="width: 300px;">
+                            <option value="">All Cities (Johannesburg & Pretoria)</option>
+                            <option value="Johannesburg">Johannesburg</option>
+                            <option value="Pretoria">Pretoria</option>
+                        </select>
+                        <p class="help">Select a specific city or leave empty to fetch from all cities.</p>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div>
+                        <label for="id_max_results">Max Results per City:</label>
+                        <input type="number" name="max_results" id="id_max_results" value="50" min="1" max="200" style="width: 100px;">
+                        <p class="help">Maximum number of venues to fetch per city (1-200). Default: 50</p>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div>
+                        <label for="id_dry_run">
+                            <input type="checkbox" name="dry_run" id="id_dry_run">
+                            Dry Run (Preview without saving)
+                        </label>
+                        <p class="help">Check this to preview what would be created without actually saving to the database.</p>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <div class="submit-row">
+                <input type="submit" value="Start Ingestion" class="default" id="submit-btn">
+                <a href="{% url 'admin:events_event_changelist' %}" class="button">Cancel</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="module" style="margin-top: 20px;">
+        <h2>How It Works</h2>
+        <ul>
+            <li>Fetches venues from Google Places API based on your selection</li>
+            <li>Applies data sanitation rules (city standardization, date parsing, URL validation)</li>
+            <li>Prevents duplicates using source_id unique constraint</li>
+            <li>Updates existing events or creates new ones</li>
+            <li>Stores raw API response for data lineage</li>
+        </ul>
+        
+        <h3>Note:</h3>
+        <p style="color: #666;">
+            This process may take a few minutes depending on the number of results. 
+            Please do not close this page until the process completes.
+        </p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('ingest-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    form.addEventListener('submit', function(e) {
+        submitBtn.disabled = true;
+        submitBtn.value = 'Processing... Please wait';
+        submitBtn.style.opacity = '0.6';
+        submitBtn.style.cursor = 'not-allowed';
+    });
+});
+</script>
+
+<style>
+.module {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.module h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.form-row {
+    margin-bottom: 20px;
+}
+
+.form-row label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-row input[type="number"],
+.form-row select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.form-row .help {
+    margin-top: 5px;
+    color: #666;
+    font-size: 12px;
+}
+
+.submit-row {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.submit-row input[type="submit"] {
+    padding: 10px 20px;
+    background: #417690;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.submit-row input[type="submit"]:hover {
+    background: #205067;
+}
+
+.submit-row .button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    background: #ba2121;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.submit-row .button:hover {
+    background: #a41515;
+}
+
+.module ul {
+    margin-left: 20px;
+}
+
+.module ul li {
+    margin-bottom: 8px;
+}
+</style>
+{% endblock %}
+
