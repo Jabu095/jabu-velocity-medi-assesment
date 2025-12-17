@@ -39,8 +39,17 @@ if os.getenv('RAILWAY_SERVICE_URL'):
 # Explicitly add known Railway production domain
 ALLOWED_HOSTS.append('jabu-velocity-medi-assesment-production.up.railway.app')
 
+# Production security settings
 if not DEBUG:
-    pass
+    # HTTPS settings
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = False  # Railway handles SSL termination
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Additional security headers
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
 
 # Application definition
 INSTALLED_APPS = [
@@ -105,10 +114,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'velocity_media.wsgi.application'
 
 # Database - SQLite3 as per project requirements
+# Use /data directory on Railway if available (for persistence), otherwise use BASE_DIR
+DB_DIR = Path(os.getenv('RAILWAY_VOLUME_MOUNT_PATH', BASE_DIR))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DB_DIR / 'db.sqlite3',
     }
 }
 
