@@ -36,9 +36,8 @@ if os.getenv('RAILWAY_SERVICE_URL'):
     if parsed.hostname:
         ALLOWED_HOSTS.append(parsed.hostname)
 
-# Allow all Railway domains in production (for dynamic URLs)
 if not DEBUG:
-    ALLOWED_HOSTS.extend(['*.railway.app', '*.up.railway.app'])
+    pass
 
 # Application definition
 INSTALLED_APPS = [
@@ -65,6 +64,7 @@ if DEBUG:
     INSTALLED_APPS += ['debug_toolbar']
 
 MIDDLEWARE = [
+    'velocity_media.middleware.RailwayHostMiddleware',  # Railway domain validation (MUST be before SecurityMiddleware)
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files serving - must be after SecurityMiddleware
     'corsheaders.middleware.CorsMiddleware',  # CORS - must be before CommonMiddleware
