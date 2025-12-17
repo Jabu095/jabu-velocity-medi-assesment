@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect
 from django.urls import path
 from django.db import IntegrityError
 from .models import Event
+from .chat_models import ChatConversation, ChatMessage, UserTokenUsage
 from .services.google_places import GooglePlacesService
 from .sanitation import sanitize_event_data
 
@@ -72,6 +73,51 @@ class EventAdmin(admin.ModelAdmin):
     )
     
     date_hierarchy = 'created_at'
+
+
+@admin.register(ChatConversation)
+class ChatConversationAdmin(admin.ModelAdmin):
+    """Admin for chat conversations."""
+    list_display = ['user', 'title', 'created_at', 'updated_at', 'message_count']
+    list_filter = ['created_at', 'updated_at']
+    search_fields = ['title', 'user__username']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    def message_count(self, obj):
+        return obj.messages.count()
+    message_count.short_description = 'Messages'
+
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    """Admin for chat messages."""
+    list_display = ['conversation', 'role', 'content_preview', 'tokens_used', 'created_at']
+    list_filter = ['role', 'created_at']
+    search_fields = ['content', 'conversation__title']
+    readonly_fields = ['created_at', 'tokens_used']
+    
+    def content_preview(self, obj):
+        return obj.content[:100] + '...' if len(obj.content) > 100 else obj.content
+    content_preview.short_description = 'Content'
+
+
+@admin.register(UserTokenUsage)
+class UserTokenUsageAdmin(admin.ModelAdmin):
+    """Admin for token usage tracking."""
+    list_display = ['user', 'tokens_used', 'monthly_limit', 'tokens_remaining', 'last_reset', 'percentage_used']
+    list_filter = ['last_reset']
+    search_fields = ['user__username']
+    readonly_fields = ['last_reset', 'tokens_used']
+    
+    def tokens_remaining(self, obj):
+        return obj.monthly_limit - obj.tokens_used
+    tokens_remaining.short_description = 'Remaining'
+    
+    def percentage_used(self, obj):
+        if obj.monthly_limit > 0:
+            return f"{(obj.tokens_used / obj.monthly_limit * 100):.1f}%"
+        return "0%"
+    percentage_used.short_description = 'Usage %'
     
     def get_urls(self):
         """Add custom URLs for ingestion view."""
