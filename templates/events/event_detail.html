@@ -1,6 +1,46 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Event Details - Velocity Media{% endblock %}
+
+{% block extra_css %}
+<style>
+    .event-detail-image {
+        width: 100%;
+        height: 400px;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .event-detail-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .map-container {
+        margin-top: 1rem;
+    }
+    
+    .map-wrapper {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .map-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -35,12 +75,48 @@ async function loadEventDetail(eventId) {
     try {
         const event = await apiCall(`/api/events/${eventId}/`);
         
+        // Generate map URL and static map image
+        let mapEmbed = '';
+        if (event.latitude && event.longitude) {
+            const mapUrl = `https://www.google.com/maps?q=${event.latitude},${event.longitude}`;
+            // Use OpenStreetMap static map (free, no API key needed)
+            const staticMapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${event.latitude},${event.longitude}&zoom=15&size=800x400&markers=${event.latitude},${event.longitude},red-pushpin`;
+            mapEmbed = `
+                <div class="detail-section">
+                    <h3>📍 Location Map</h3>
+                    <div class="map-container">
+                        <div class="map-wrapper">
+                            <a href="${mapUrl}" target="_blank" class="map-link" title="Click to open in Google Maps">
+                                <img src="${staticMapUrl}" 
+                                     alt="Map showing ${escapeHtml(event.title)} location"
+                                     class="map-image"
+                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'800\\' height=\\'400\\'%3E%3Crect fill=\\'%23f0f0f0\\' width=\\'800\\' height=\\'400\\'/%3E%3Ctext x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' fill=\\'%23666\\' font-size=\\'18\\'%3EMap unavailable%3C/text%3E%3C/svg%3E'">
+                                <div class="map-overlay">
+                                    <span class="map-overlay-text">📍 Click to open in Google Maps</span>
+                                </div>
+                            </a>
+                        </div>
+                        <a href="${mapUrl}" target="_blank" class="btn btn-outline mt-2">
+                            <span style="margin-right: 0.5rem;">🗺️</span> Open in Google Maps
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+        
         content.innerHTML = `
             <div class="event-detail-header">
                 <a href="/dashboard/" class="btn btn-outline">← Back to Dashboard</a>
                 <h1>${escapeHtml(event.title)}</h1>
                 <span class="event-category-badge">${escapeHtml(event.category || 'General')}</span>
             </div>
+            
+            ${event.image_url ? `
+            <div class="event-detail-image">
+                <img src="${event.image_url}" alt="${escapeHtml(event.title)}" 
+                     onerror="this.src='https://source.unsplash.com/1200x600/?event,venue'">
+            </div>
+            ` : ''}
             
             <div class="event-detail-body">
                 <div class="detail-section">
@@ -87,6 +163,8 @@ async function loadEventDetail(eventId) {
                     <a href="${event.event_url}" target="_blank" class="btn btn-primary">Visit Event Website</a>
                 </div>
                 ` : ''}
+                
+                ${mapEmbed}
                 
                 <div class="detail-section">
                     <h3>Source Information</h3>
