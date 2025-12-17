@@ -68,3 +68,8 @@ django-environ>=0.11.2
 # Why loved: Enables natural language search, smart recommendations, event summarization
 openai>=1.12.0
 
+# Production Server
+# Why loved: Production-ready WSGI HTTP server for Django
+gunicorn>=21.2.0
+whitenoise>=6.6.0  # Efficient static file serving for production
+

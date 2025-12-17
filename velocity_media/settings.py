@@ -21,7 +21,24 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-producti
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# Allow Railway and other common hosting platforms
+# ALLOWED_HOSTS configuration
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+# Add Railway domain automatically if RAILWAY_PUBLIC_DOMAIN is set
+if os.getenv('RAILWAY_PUBLIC_DOMAIN'):
+    ALLOWED_HOSTS.append(os.getenv('RAILWAY_PUBLIC_DOMAIN'))
+
+# Add Railway service URL if available
+if os.getenv('RAILWAY_SERVICE_URL'):
+    from urllib.parse import urlparse
+    parsed = urlparse(os.getenv('RAILWAY_SERVICE_URL'))
+    if parsed.hostname:
+        ALLOWED_HOSTS.append(parsed.hostname)
+
+# Allow all Railway domains in production (for dynamic URLs)
+if not DEBUG:
+    ALLOWED_HOSTS.extend(['*.railway.app', '*.up.railway.app'])
 
 # Application definition
 INSTALLED_APPS = [
@@ -49,6 +66,7 @@ if DEBUG:
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files serving - must be after SecurityMiddleware
     'corsheaders.middleware.CorsMiddleware',  # CORS - must be before CommonMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -83,7 +101,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'velocity_media.wsgi.application'
 
-# Database - SQLite as per assessment requirements
+# Database - SQLite3 as per project requirements
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -107,8 +125,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# Only add to STATICFILES_DIRS if directory exists (prevents warnings in production)
+static_dir = BASE_DIR / 'static'
+STATICFILES_DIRS = [static_dir] if static_dir.exists() else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise for efficient static file serving in production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
