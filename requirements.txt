@@ -64,3 +64,7 @@ isort>=5.12.0
 # Why loved: Type casting, validation, cleaner than python-dotenv
 django-environ>=0.11.2
 
+# AI Features (Optional - only if OPENAI_API_KEY is set)
+# Why loved: Enables natural language search, smart recommendations, event summarization
+openai>=1.12.0
+
